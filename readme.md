@@ -21,25 +21,16 @@ cd wb-test
 
 ### 3️⃣ Настройте Google Sheets
 Получите ключ в ЛК Google Cloud для Google Sheets API.
-Переименуйте файл клчюа в google-credentials.json и добавьте его в корень проекта.
+Добавьте данные private_key и client_email в переменные окружения
 
-### 4️⃣ Добавьте ID ваших таблиц в базу данных
-Seed-файл (src/postgres/seeds/spreadsheets.js) по умолчанию вставляет фиктивный ID.
-Замените его на реальные ID ваших таблиц, из google sheets. ID таблицы можно взять из URL
+### 4️⃣ Добавьте ID ваших таблиц в env
+ID таблиц можно взять из URL, и должны указываться через запятую без пробела
 Например: https://docs.google.com/spreadsheets/d/ваш_id_таблицы_1
 
 ```bash
-// src/postgres/seeds/spreadsheets.js
-export async function seed(knex) {
-  await knex("spreadsheets")
-    .insert([
-      { spreadsheet_id: "ваш_id_таблицы_1" },
-      { spreadsheet_id: "ваш_id_таблицы_2" } // если несколько
-    ])
-    .onConflict(["spreadsheet_id"])
-    .ignore();
-}
+GOOGLE_SERVICE_SPREADSHEET_IDS=id_1,id_2,id_3
 ```
+при необходимости можно добавлять таблицы через seed
 
 6️⃣ Запустите приложение
 

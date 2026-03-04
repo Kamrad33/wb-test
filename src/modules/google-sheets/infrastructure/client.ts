@@ -1,27 +1,17 @@
 import { google } from 'googleapis';
 import { JWT } from 'google-auth-library';
-import fs from 'fs';
 import env from '#config/env/env.js';
-import path from 'path';
-import { fileURLToPath } from 'url';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const projectRoot = path.resolve(__dirname, '../../../../');
 
 let sheetsClient: any = null;
 
 export const getSheetsClient = async () => {
     if (sheetsClient) return sheetsClient;
 
-    const keyPath = path.resolve(projectRoot, env.GOOGLE_SERVICE_ACCOUNT_KEY_PATH);
-    
-    const credentials = JSON.parse(fs.readFileSync(keyPath, 'utf8'));
 
     const auth = new JWT({
-        email: credentials.client_email,
-        key: credentials.private_key,
+        email: env.GOOGLE_SERVICE_CLIENT_EMAIL,
+        key: env.GOOGLE_SERVICE_PRIVATE_KEY,
         scopes: ['https://www.googleapis.com/auth/spreadsheets'],
     });
 
@@ -30,40 +20,73 @@ export const getSheetsClient = async () => {
     return sheetsClient;
 }
 
-export const ensureSheetExists =async (spreadsheetId: string, sheetName: string) => {
+export const ensureSheetExists = async (spreadsheetId: string, sheetName: string): Promise<number> => {
     const sheets = await getSheetsClient();
 
     try {
-        // Проверяем, есть ли лист
         const spreadsheet = await sheets.spreadsheets.get({ spreadsheetId });
         const sheet = spreadsheet.data.sheets?.find((s: any) => s.properties?.title === sheetName);
 
-        if (!sheet) {
-            // Создаём новый лист
-            await sheets.spreadsheets.batchUpdate({
-                spreadsheetId,
-                requestBody: {
-                    requests: [
-                        {
-                            addSheet: {
-                                properties: { title: sheetName },
-                            },
-                        },
-                    ],
-                },
-            });
-
-            console.log(`Sheet "${sheetName}" created in spreadsheet ${spreadsheetId}`);
+        if (sheet) {
+            // Лист уже существует – возвращаем его sheetId
+            return sheet.properties.sheetId;
         }
+
+        // Создаём новый лист
+        const response = await sheets.spreadsheets.batchUpdate({
+            spreadsheetId,
+            requestBody: {
+                requests: [
+                    {
+                        addSheet: {
+                            properties: { title: sheetName },
+                        },
+                    },
+                ],
+            },
+        });
+
+        const sheetId = response.data.replies?.[0]?.addSheet?.properties?.sheetId;
+
+        if (!sheetId) {
+            throw new Error(`Failed to create sheet "${sheetName}" in ${spreadsheetId}`);
+        }
+
+        console.log(`Sheet "${sheetName}" created in spreadsheet ${spreadsheetId}`);
+
+        return sheetId;
     } catch (error) {
         console.error(`Error ensuring sheet exists for ${spreadsheetId}:`, error);
-
         throw error;
     }
 }
 
+export const freezeHeaderRow = async (spreadsheetId: string, sheetId: number) => {
+    const sheets = await getSheetsClient();
+
+    await sheets.spreadsheets.batchUpdate({
+        spreadsheetId,
+        requestBody: {
+            requests: [
+                {
+                    updateSheetProperties: {
+                        properties: {
+                            sheetId,
+                            gridProperties: {
+                                frozenRowCount: 1,
+                            },
+                        },
+                        fields: 'gridProperties.frozenRowCount',
+                    },
+                },
+            ],
+        },
+    });
+}
+
 export const updateSheet = async (spreadsheetId: string, sheetName: string, data: string[][]) => {
     const sheets = await getSheetsClient();
+    const sheetId = await ensureSheetExists(spreadsheetId, sheetName);
 
     // Очищаем лист (все значения)
     await sheets.spreadsheets.values.clear({
@@ -81,5 +104,8 @@ export const updateSheet = async (spreadsheetId: string, sheetName: string, data
         });
     }
 
-    console.log(`Sheet ${sheetName} in spreadsheet ${spreadsheetId} updated with ${data.length} rows`);
+    // Замораживаем первую строку (заголовки)
+    await freezeHeaderRow(spreadsheetId, sheetId);
+
+    console.log(`Sheet ${sheetName} in spreadsheet ${spreadsheetId} updated with ${data.length} rows and header frozen`);
 }

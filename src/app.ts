@@ -2,10 +2,13 @@ import knex, { migrate, seed } from "#postgres/knex.js";
 import { startWbCron } from "#modules/wb/index.js";
 import http from 'http';
 import { startGSCron } from "#modules/google-sheets/index.js";
+import { syncSpreadsheets } from "#modules/google-sheets/infrastructure/syncSpreadsheets.js";
 
 // Запускаем миграции и сиды
 await migrate.latest();
-await seed.run();
+// await seed.run(); // использование сидов отключено, чтобы не трекать ID таблиц в git
+
+await syncSpreadsheets()
 
 console.log("All migrations and seeds have been run");
 

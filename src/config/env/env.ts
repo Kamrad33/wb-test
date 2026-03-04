@@ -23,6 +23,9 @@ const envSchema = z.object({
     WB_CRON_SCHEDULE: z.string(),
     GOOGLE_SERVICE_ACCOUNT_KEY_PATH: z.string(),
     GOOGLE_SERVICE_CRON_SCHEDULE: z.string(),
+    GOOGLE_SERVICE_SPREADSHEET_IDS: z.string().default(""),
+    GOOGLE_SERVICE_CLIENT_EMAIL: z.string().default(""),
+    GOOGLE_SERVICE_PRIVATE_KEY: z.string().default(""),
 });
 
 const env = envSchema.parse({
@@ -37,6 +40,9 @@ const env = envSchema.parse({
     WB_CRON_SCHEDULE: process.env.WB_CRON_SCHEDULE,
     GOOGLE_SERVICE_ACCOUNT_KEY_PATH: process.env.GOOGLE_SERVICE_ACCOUNT_KEY_PATH,
     GOOGLE_SERVICE_CRON_SCHEDULE: process.env.GOOGLE_SERVICE_CRON_SCHEDULE,
+    GOOGLE_SERVICE_SPREADSHEET_IDS: process.env.GOOGLE_SERVICE_SPREADSHEET_IDS,
+    GOOGLE_SERVICE_CLIENT_EMAIL: process.env.GOOGLE_SERVICE_CLIENT_EMAIL,
+    GOOGLE_SERVICE_PRIVATE_KEY: process.env.GOOGLE_SERVICE_PRIVATE_KEY,
 });
 
 export default env;

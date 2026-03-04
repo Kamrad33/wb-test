@@ -14,7 +14,7 @@ export const getTodayTariffs = async (): Promise<BoxTariffData[]> => {
     const rows: BoxTariffDB[] = await knex(DB_TABLES.WB_BOX_TARIFFS)
         .select('*')
         .where('date', date)
-        .orderBy('box_storage_coef_expr', 'asc'); // сортировка по возрастанию
+        .orderBy('box_delivery_coef_expr', 'asc'); // сортировка по возрастанию
 
     return rows.map((row: BoxTariffDB) => ({
         date: row.date,
