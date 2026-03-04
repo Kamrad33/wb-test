@@ -80,5 +80,8 @@ services:
         max-size: 10m
         max-file: 5
 
+    volumes:
+      - ./google-credentials.json:/app/google-credentials.json:ro
+
     command: [ "npm", "run", "start" ]
     restart: unless-stopped

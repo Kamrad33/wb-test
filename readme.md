@@ -1,54 +1,48 @@
-# Шаблон для выполнения тестового задания
-
 ## Описание
-Шаблон подготовлен для того, чтобы попробовать сократить трудоемкость выполнения тестового задания.
+Сервис для сбора ежедневных тарифов Wildberries (API коробов) и выгрузки их в Google Sheets.  
+Работает в Docker, использует PostgreSQL, Knex и cron.
 
-В шаблоне настоены контейнеры для `postgres` и приложения на `nodejs`.  
-Для взаимодействия с БД используется `knex.js`.  
-В контейнере `app` используется `build` для приложения на `ts`, но можно использовать и `js`.
+## Требования
 
-Шаблон не является обязательным!\
-Можно использовать как есть или изменять на свой вкус.
+- Установленные **Docker** и **docker-compose** (или **Docker Desktop**).
+- Токен доступа к **Wildberries API**.
+- **Google Cloud проект** с включённым **Google Sheets API** и сервисным аккаунтом.
 
-Все настройки можно найти в файлах:
-- compose.yaml
-- dockerfile
-- package.json
-- tsconfig.json
-- src/config/env/env.ts
-- src/config/knex/knexfile.ts
+## Запуск
 
-## Команды:
-
-Запуск базы данных:
-```bash
-docker compose up -d --build postgres
-```
-
-Для выполнения миграций и сидов не из контейнера:
-```bash
-npm run knex:dev migrate latest
-```
+### 1️⃣ Клонируйте репозиторий
 
 ```bash
-npm run knex:dev seed run
+git clone <url-вашего-репозитория>
+cd wb-test
 ```
-Также можно использовать и остальные команды (`migrate make <name>`,`migrate up`, `migrate down` и т.д.)
+### 2️⃣ Добавьте переменные окружения
+Создайте .env файл на основе example.env и заполните его вашими данными. При необходимости можете настроить расписание cron
 
-Для запуска приложения в режиме разработки:
+### 3️⃣ Настройте Google Sheets
+Получите ключ в ЛК Google Cloud для Google Sheets API.
+Переименуйте файл клчюа в google-credentials.json и добавьте его в корень проекта.
+
+### 4️⃣ Добавьте ID ваших таблиц в базу данных
+Seed-файл (src/postgres/seeds/spreadsheets.js) по умолчанию вставляет фиктивный ID.
+Замените его на реальные ID ваших таблиц, из google sheets. ID таблицы можно взять из URL
+Например: https://docs.google.com/spreadsheets/d/ваш_id_таблицы_1
+
 ```bash
-npm run dev
+// src/postgres/seeds/spreadsheets.js
+export async function seed(knex) {
+  await knex("spreadsheets")
+    .insert([
+      { spreadsheet_id: "ваш_id_таблицы_1" },
+      { spreadsheet_id: "ваш_id_таблицы_2" } // если несколько
+    ])
+    .onConflict(["spreadsheet_id"])
+    .ignore();
+}
 ```
 
-Запуск проверки самого приложения:
+6️⃣ Запустите приложение
+
 ```bash
-docker compose up -d --build app
+docker compose up -d --build
 ```
-
-Для финальной проверки рекомендую:
-```bash
-docker compose down --rmi local --volumes
-docker compose up --build
-```
-
-PS: С наилучшими пожеланиями!
