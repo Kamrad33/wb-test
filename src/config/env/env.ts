@@ -1,9 +1,9 @@
-import dotenv from "dotenv";
-import { z } from "zod";
+import dotenv from 'dotenv';
+import { z } from 'zod';
 dotenv.config();
 
 const envSchema = z.object({
-    NODE_ENV: z.union([z.undefined(), z.enum(["development", "production"])]),
+    NODE_ENV: z.union([z.undefined(), z.enum(['development', 'production'])]),
     POSTGRES_HOST: z.union([z.undefined(), z.string()]),
     POSTGRES_PORT: z
         .string()
@@ -19,6 +19,8 @@ const envSchema = z.object({
             .regex(/^[0-9]+$/)
             .transform((value) => parseInt(value)),
     ]),
+    WB_API_TOKEN: z.string(),
+    WB_CRON_SCHEDULE: z.string(),
 });
 
 const env = envSchema.parse({
@@ -29,6 +31,8 @@ const env = envSchema.parse({
     POSTGRES_PASSWORD: process.env.POSTGRES_PASSWORD,
     NODE_ENV: process.env.NODE_ENV,
     APP_PORT: process.env.APP_PORT,
+    WB_API_TOKEN: process.env.WB_API_TOKEN,
+    WB_CRON_SCHEDULE: process.env.WB_CRON_SCHEDULE,
 });
 
 export default env;
