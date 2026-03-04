@@ -21,6 +21,8 @@ const envSchema = z.object({
     ]),
     WB_API_TOKEN: z.string(),
     WB_CRON_SCHEDULE: z.string(),
+    GOOGLE_SERVICE_ACCOUNT_KEY_PATH: z.string(),
+    GOOGLE_SERVICE_CRON_SCHEDULE: z.string(),
 });
 
 const env = envSchema.parse({
@@ -33,6 +35,8 @@ const env = envSchema.parse({
     APP_PORT: process.env.APP_PORT,
     WB_API_TOKEN: process.env.WB_API_TOKEN,
     WB_CRON_SCHEDULE: process.env.WB_CRON_SCHEDULE,
+    GOOGLE_SERVICE_ACCOUNT_KEY_PATH: process.env.GOOGLE_SERVICE_ACCOUNT_KEY_PATH,
+    GOOGLE_SERVICE_CRON_SCHEDULE: process.env.GOOGLE_SERVICE_CRON_SCHEDULE,
 });
 
 export default env;

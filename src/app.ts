@@ -1,6 +1,7 @@
 import knex, { migrate, seed } from "#postgres/knex.js";
 import { startWbCron } from "#modules/wb/index.js";
 import http from 'http';
+import { startGSCron } from "#modules/google-sheets/index.js";
 
 // Запускаем миграции и сиды
 await migrate.latest();
@@ -10,6 +11,7 @@ console.log("All migrations and seeds have been run");
 
 // Запускаем cron задачи
 startWbCron();
+startGSCron();
 
 // health check
 const server = http.createServer((req, res) => {
