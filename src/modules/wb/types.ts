@@ -13,34 +13,20 @@ export interface WarehouseBoxTariff {
     boxStorageLiter: string;
 }
 
-export interface WbApiResponse {
-    response: {
-        data: {
-            dtNextBox: string;
-            dtTillMax: string;
-            warehouseList: WarehouseBoxTariff[];
-        };
-    };
-}
-
-// Тип для записи в БД (поля, которые мы сохраняем)
-export interface BoxTariffRecord {
-    date: string;                                   // дата в формате YYYY-MM-DD
-    warehouseName: string;                          // название склада
-    geoName: string | null;                         // регион
-    boxDeliveryBase: number | null;                 // базовая ставка доставки
-    boxDeliveryCoefExpr: number | null;             // коэффициент доставки
-    boxDeliveryLiter: number | null;                // ставка за литр доставки
-    boxDeliveryMarketplaceBase: number | null;      // базовая ставка доставки маркетплейса
-    boxDeliveryMarketplaceCoefExpr: number | null;  // коэффициент доставки маркетплейса
-    boxDeliveryMarketplaceLiter: number | null;     // ставка за литр доставки маркетплейса
-    boxStorageBase: number | null;                  // базовая ставка хранения
-    boxStorageCoefExpr: number | null;              // коэффициент хранения
-    boxStorageLiter: number | null;                 // ставка за литр хранения
+export interface WbApiResponseData {
+    dtNextBox: string;
+    dtTillMax: string;
+    warehouseList: WarehouseBoxTariff[];
 };
 
-// тип в snake_case
-export interface DbBoxTariffRecord {
+export interface WbApiResponse {
+    response: {
+        data: WbApiResponseData;
+    };
+};
+
+// тип в snake_case для knex записи в бд
+export interface IBoxTariffRecordDB {
     date: string;
     warehouse_name: string;
     geo_name: string | null;
@@ -53,4 +39,6 @@ export interface DbBoxTariffRecord {
     box_storage_base: number | null;
     box_storage_coef_expr: number | null;
     box_storage_liter: number | null;
+    tariff_next_date: string | null;
+    tarif_end_date: string | null;
 }

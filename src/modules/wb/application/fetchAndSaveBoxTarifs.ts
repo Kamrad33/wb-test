@@ -1,22 +1,27 @@
 import { parseNumeric } from '#utils/helpers.js';
 import { fetchBoxTariffs } from '../infrastructure/apiClient.js';
 import { upsertBoxTariffs } from '../infrastructure/repository.js';
-import { WarehouseBoxTariff } from '../types.js';
+import { IBoxTariffRecordDB, WarehouseBoxTariff } from '../types.js';
 
 /**
  * USE-CASE загрузки тарифов коробов и сохранения в БД
  * @param apiToken WB токен
  */
-export async function fetchAndSaveBoxTariffs(apiToken: string): Promise<void> {
+export const fetchAndSaveBoxTariffs = async (apiToken: string): Promise<void> => {
     const date = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
     // TODO логирование
     console.log(`Fetching WB tariffs for date ${date}...`);
 
     try {
-        const warehouseList = await fetchBoxTariffs(date, apiToken);
-
+        const tariffsResponse = await fetchBoxTariffs(date, apiToken);
+        const {
+            dtNextBox,
+            dtTillMax,
+            warehouseList,
+        } = tariffsResponse;
+        
         // Преобразуем в формат для БД (ключи в snake_case)
-        const records = warehouseList.map((item: WarehouseBoxTariff) => ({
+        const records: IBoxTariffRecordDB[] = warehouseList.map((item: WarehouseBoxTariff) => ({
             date: date,
             warehouse_name: item.warehouseName,
             geo_name: item.geoName || null,
@@ -29,6 +34,8 @@ export async function fetchAndSaveBoxTariffs(apiToken: string): Promise<void> {
             box_storage_base: parseNumeric(item.boxStorageBase),
             box_storage_coef_expr: parseNumeric(item.boxStorageCoefExpr),
             box_storage_liter: parseNumeric(item.boxStorageLiter),
+            tariff_next_date: dtNextBox,
+            tarif_end_date: dtTillMax,
         }));
 
         await upsertBoxTariffs(records);

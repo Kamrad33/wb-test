@@ -4,8 +4,9 @@ import { fetchAndSaveBoxTariffs } from './application/fetchAndSaveBoxTarifs.js';
 
 let isRunning = false;
 
-export function startWbCron() {
+export const startWbCron = () => {
     const schedule = env.WB_CRON_SCHEDULE;
+
     console.log(`Starting WB cron with schedule: ${schedule}`);
 
     cron.schedule(schedule, async () => {
@@ -24,4 +25,4 @@ export function startWbCron() {
             isRunning = false;
         }
     });
-}
+};

@@ -43,13 +43,13 @@ export const ensureSheetExists =async (spreadsheetId: string, sheetName: string)
             await sheets.spreadsheets.batchUpdate({
                 spreadsheetId,
                 requestBody: {
-                requests: [
-                    {
-                    addSheet: {
-                        properties: { title: sheetName },
-                    },
-                    },
-                ],
+                    requests: [
+                        {
+                            addSheet: {
+                                properties: { title: sheetName },
+                            },
+                        },
+                    ],
                 },
             });
 

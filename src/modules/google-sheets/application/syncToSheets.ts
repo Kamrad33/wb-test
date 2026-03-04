@@ -1,3 +1,4 @@
+import { formatDate } from '#utils/helpers.js';
 import { ensureSheetExists, updateSheet } from '../infrastructure/client.js';
 import { getSpreadsheetIds, getTodayTariffs } from '../infrastructure/repository.js';
 import { BoxTariffData } from '../types.js';
@@ -8,8 +9,8 @@ const prepareData = (tariffs: BoxTariffData[]): string[][] => {
     // Заголовки
     const headers = [
         'Дата',
-        'Регион',
-        'Склад',
+        'Название склада',
+        'Регион склада',
         'Базовая ставка доставки',
         'Коэф. доставки',
         'Ставка за литр доставки',
@@ -19,10 +20,12 @@ const prepareData = (tariffs: BoxTariffData[]): string[][] => {
         'Базовая ставка хранения',
         'Коэф. хранения',
         'Ставка за литр хранения',
+        'Следующая дата',
+        'Дата окончания',
     ];
 
     const rows = tariffs.map(t => [
-        
+        formatDate(t.date)!,
         t.warehouseName,
         t.geoName || '-',
         t.boxDeliveryBase?.toString() ?? '-',
@@ -34,6 +37,8 @@ const prepareData = (tariffs: BoxTariffData[]): string[][] => {
         t.boxStorageBase?.toString() ?? '-',
         t.boxStorageCoefExpr?.toString() ?? '-',
         t.boxStorageLiter?.toString() ?? '-',
+        formatDate(t.dtNextBox) ?? '-',
+        formatDate(t.dtTillMax) ?? '-',
     ]);
 
     return [headers, ...rows];

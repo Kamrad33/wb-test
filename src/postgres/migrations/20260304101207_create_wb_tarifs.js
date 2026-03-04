@@ -3,7 +3,7 @@
  * @returns {Promise<void>}
  */
 export async function up(knex) {
-    return knex.schema.createTable('wb_tariffs', (table) => {
+    return knex.schema.createTable('wb_box_tariffs', (table) => {
         table.increments('id').primary();
         table.date('date').notNullable();
         table.text('warehouse_name').notNullable();
@@ -17,8 +17,9 @@ export async function up(knex) {
         table.decimal('box_storage_base', 10, 2);
         table.decimal('box_storage_coef_expr', 10, 2);
         table.decimal('box_storage_liter', 10, 2);
+        table.date('tariff_next_date');
+        table.date('tarif_end_date');
         table.timestamp('updated_at').defaultTo(knex.fn.now());
-        
         table.unique(['date', 'warehouse_name']);
     });
 }
@@ -28,5 +29,5 @@ export async function up(knex) {
  * @returns {Promise<void>}
  */
 export async function down(knex) {
-    return knex.schema.dropTable('wb_tariffs');
+    return knex.schema.dropTable('wb_box_tariffs');
 }

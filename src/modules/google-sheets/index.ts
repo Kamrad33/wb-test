@@ -16,7 +16,7 @@ export const startGSCron = () => {
             return;
         }
 
-            isRunning = true;
+        isRunning = true;
 
         try {
             await syncToSheets();

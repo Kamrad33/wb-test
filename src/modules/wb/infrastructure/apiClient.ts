@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { WarehouseBoxTariff, WbApiResponse } from '../types.js';
+import { WbApiResponse, WbApiResponseData } from '../types.js';
 
 /**
  * Получение тарифа коробов на указанную дату
@@ -7,7 +7,7 @@ import { WarehouseBoxTariff, WbApiResponse } from '../types.js';
  * @param apiToken WB Токен авторизации
  * @returns массив WarehouseTariff
  */
-export async function fetchBoxTariffs(date: string, apiToken: string): Promise<WarehouseBoxTariff[]> {
+export const fetchBoxTariffs = async(date: string, apiToken: string): Promise<WbApiResponseData> => {
     const url = 'https://common-api.wildberries.ru/api/v1/tariffs/box';
 
     const response = await axios.get<WbApiResponse>(url, {
@@ -15,5 +15,5 @@ export async function fetchBoxTariffs(date: string, apiToken: string): Promise<W
         params: { date },
     });
 
-    return response.data.response.data.warehouseList;
+    return response.data.response.data;
 };
